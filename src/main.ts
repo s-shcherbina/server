@@ -14,6 +14,8 @@ async function bootstrap() {
   app.enableCors({
     credentials: true,
     origin: [
+      'https://intership-frontend-965114150226.europe-west10.run.app',
+      'https://intership-frontend-965114150226.europe-west10.run.app/auth/me',
       'https://intership-frontend-965114150226.europe-west10.run.app/',
       configService.getOrThrow('CLIENT_URL'),
       '*',
