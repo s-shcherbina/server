@@ -8,3 +8,9 @@ export interface Response<T> {
   status_code: number;
   detail: T;
 }
+
+export enum Role {
+  OWNWER = 1000,
+  ADMIN = 500,
+  MEMBER = 100,
+}

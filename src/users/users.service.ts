@@ -1,9 +1,14 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { hash } from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -39,11 +44,18 @@ export class UsersService {
     return this.filterResponse(user);
   }
 
-  public async update(id: string, email: string, updateUserDto: UpdateUserDto) {
-    return this.userRepository.update({ id }, { ...updateUserDto, email });
+  public async update(email: string, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.email)
+      throw new BadRequestException('changing email is not allowed');
+    if (updateUserDto.password)
+      updateUserDto.password = await hash(updateUserDto.password);
+
+    const user = await this.findByEmail(email);
+    return this.userRepository.update({ id: user.id }, { ...updateUserDto });
   }
 
-  public async remove(id: string) {
-    return this.userRepository.delete({ id });
+  public async remove(email: string) {
+    const user = await this.findByEmail(email);
+    return this.userRepository.delete({ id: user.id });
   }
 }

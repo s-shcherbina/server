@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Auth } from 'src/auth/entities/auth.entity';
 import { Base } from 'src/common/global/base-entity';
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Company } from 'src/companies/entities/company.entity';
+import { CompanyAction } from 'src/company-actions/entities/company-actions.entity';
+import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User extends Base {
@@ -44,4 +46,13 @@ export class User extends Base {
   })
   @OneToOne(() => Auth, (token) => token.user)
   token: Auth;
+
+  @ManyToMany(() => Company, (company) => company.users, {
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
+  })
+  companies?: Company[];
+
+  @OneToMany(() => CompanyAction, (companyAction) => companyAction.user)
+  companyActions: CompanyAction[];
 }

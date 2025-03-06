@@ -54,7 +54,7 @@ export class UsersController {
 
   @ApiOperation({ description: 'getting one user' })
   @ApiOkResponse({ type: PartialType(User) })
-  @Get('user/:id')
+  @Get(':id')
   public async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
@@ -71,16 +71,15 @@ export class UsersController {
   })
   @Patch()
   public async update(
-    @CurrentUser('id', 'email') userId: string,
-    email: string,
+    @CurrentUser('email') email: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.usersService.update(userId, email, updateUserDto);
+    return this.usersService.update(email, updateUserDto);
   }
 
   @ApiOperation({ description: 'deleting a user' })
   @Delete()
-  public async remove(@CurrentUser('id') userId: string) {
-    await this.usersService.remove(userId);
+  public async remove(@CurrentUser('email') email: string) {
+    await this.usersService.remove(email);
   }
 }
