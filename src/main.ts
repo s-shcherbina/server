@@ -13,7 +13,11 @@ async function bootstrap() {
 
   app.enableCors({
     credentials: true,
-    origin: [configService.getOrThrow('CLIENT_URL'), '*'],
+    origin: [
+      'https://intership-frontend-965114150226.europe-west10.run.app/',
+      configService.getOrThrow('CLIENT_URL'),
+      '*',
+    ],
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   });
   app.use(cookieParser());
