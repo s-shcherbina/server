@@ -13,4 +13,5 @@ export enum Role {
   OWNWER = 1000,
   ADMIN = 500,
   MEMBER = 100,
+  fired = 0,
 }

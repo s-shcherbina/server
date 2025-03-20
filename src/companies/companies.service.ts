@@ -20,27 +20,35 @@ export class CompaniesService {
     private readonly usersService: UsersService,
   ) {}
 
+  private select() {
+    return [
+      'owner.id',
+      'owner.name',
+      'owner.avatar',
+      'owner.email',
+      'owner.createdAt',
+      'owner.updatedAt',
+      'owner.deletedAt',
+    ];
+  }
+
   public async findCompanyById(id: string) {
     return this.companyRepository
       .createQueryBuilder('company')
       .where({ id })
       .leftJoin('company.owner', 'owner')
       .select('company')
-      .addSelect(['owner.id', 'owner.name', 'owner.avatar', 'owner.email'])
+      .addSelect(this.select())
       .getOne();
   }
 
-  public async findCompanyByOwner(owner: User) {
-    return this.companyRepository.findOne({ where: { owner } });
-  }
+  // public async findCompanyByOwner(owner: User) {
+  //   return this.companyRepository.findOne({ where: { owner } });
+  // }
 
   public async checkAccess(id: string, email: string) {
     const company = await this.findCompanyById(id);
     const user = await this.usersService.findByEmail(email);
-    // console.log(user.name, company.owner.name);
-    // console.log(user.email, company.owner.email);
-    // console.log(user.id, company.owner.id);
-    // console.log(user.id === company.owner.id);
     return user.id === company.owner.id;
   }
 
@@ -68,7 +76,7 @@ export class CompaniesService {
       .where({ visibility: true })
       .leftJoin('company.owner', 'owner')
       .select('company')
-      .addSelect(['owner.id', 'owner.name', 'owner.avatar', 'owner.email'])
+      .addSelect(this.select())
       .orderBy('company.created_at', 'DESC')
       .getMany();
   }
@@ -77,10 +85,10 @@ export class CompaniesService {
     const owner = await this.usersService.findByEmail(email);
     return this.companyRepository
       .createQueryBuilder('company')
-      .where('company.owner_id = :id', { id: owner.id })
+      .where({ owner })
       .leftJoin('company.owner', 'owner')
       .select('company')
-      .addSelect(['owner.id', 'owner.name', 'owner.avatar', 'owner.email'])
+      .addSelect(this.select())
       .orderBy('company.created_at', 'DESC')
       .getMany();
   }

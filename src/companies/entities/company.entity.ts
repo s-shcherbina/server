@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { CompanyAction } from '../../company-actions/entities/company-actions.entity';
 import { Quiz } from 'src/quizzes/entities/quiz.entity';
+import { QuizResult } from 'src/quiz-results/entities/quiz-result.entity';
 
 @Entity({ name: 'companies' })
 export class Company extends Base {
@@ -72,4 +73,7 @@ export class Company extends Base {
 
   @OneToMany(() => Quiz, (quiz) => quiz.company)
   quizzes: Quiz[];
+
+  @OneToMany(() => QuizResult, (quizResults) => quizResults.company)
+  quizResults: QuizResult[];
 }

@@ -1,12 +1,12 @@
 import {
-  IsArray,
   IsDefined,
+  IsEmpty,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsString,
-  Length,
 } from 'class-validator';
-import { QuizElement } from 'src/quiz-elements/entities/quiz-element.entity';
+import { Company } from 'src/companies/entities/company.entity';
 
 export class CreateQuizDto {
   @IsDefined()
@@ -24,10 +24,10 @@ export class CreateQuizDto {
   @IsNumber()
   frequency: number;
 
-  // @IsDefined()
-  // @IsNotEmpty()
-  // @IsNumber()
-  // @IsArray()
-  // @Length(2)
-  // quizElements: QuizElement[];
+  @IsDefined()
+  @IsObject()
+  company: Company;
+
+  @IsEmpty()
+  valid: boolean;
 }

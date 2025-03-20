@@ -3,7 +3,7 @@ import { Role } from 'src/common/types';
 
 export class UpdateRoleDto {
   @IsEmpty()
-  ownerCompanyVerdict?: boolean;
+  ownerVerdict?: boolean;
 
   @IsEmpty()
   userVerdict?: boolean;

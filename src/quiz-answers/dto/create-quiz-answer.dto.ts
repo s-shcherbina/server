@@ -1,13 +1,24 @@
-import { IsBoolean, IsDefined, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsDefined,
+  IsNotEmpty,
+  IsObject,
+  IsString,
+} from 'class-validator';
+import { QuizElement } from 'src/quiz-elements/entities/quiz-element.entity';
 
 export class CreateQuizAnswerDto {
+  @IsDefined()
+  @IsNotEmpty()
+  @IsBoolean()
+  correct: boolean;
+
   @IsDefined()
   @IsNotEmpty()
   @IsString()
   text: string;
 
   @IsDefined()
-  @IsNotEmpty()
-  @IsBoolean()
-  isRight: Boolean;
+  @IsObject()
+  element: QuizElement;
 }

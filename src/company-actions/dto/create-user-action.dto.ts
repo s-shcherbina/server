@@ -3,7 +3,7 @@ import { Role } from 'src/common/types';
 
 export class CreateUserActionDto {
   @IsEmpty()
-  ownerCompanyVerdict?: boolean;
+  ownerVerdict?: boolean;
 
   @IsDefined()
   @IsBoolean()

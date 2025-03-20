@@ -25,6 +25,10 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
+  public async updateRating(id: string, rating: number) {
+    return this.userRepository.update({ id }, { rating });
+  }
+
   public async create(createUserDto: CreateUserDto) {
     const { email } = createUserDto;
     const userByEmail = await this.findByEmail(email);

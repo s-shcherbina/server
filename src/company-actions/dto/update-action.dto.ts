@@ -5,7 +5,7 @@ export class UpdateActionDto {
   @IsDefined()
   @IsBoolean()
   @IsNotEmpty()
-  ownerCompanyVerdict?: boolean;
+  ownerVerdict?: boolean;
 
   @IsDefined()
   @IsBoolean()
@@ -14,4 +14,7 @@ export class UpdateActionDto {
 
   @IsEmpty()
   role?: Role;
+
+  @IsEmpty()
+  rating?: number;
 }

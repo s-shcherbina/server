@@ -1,13 +1,4 @@
-import { IsBoolean, IsDefined, IsNotEmpty, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
+import { CreateQuizAnswerDto } from './create-quiz-answer.dto';
 
-export class UpdateQuizAnswerDto {
-  @IsDefined()
-  @IsNotEmpty()
-  @IsString()
-  text?: string;
-
-  @IsDefined()
-  @IsNotEmpty()
-  @IsBoolean()
-  isRight?: Boolean;
-}
+export class UpdateQuizAnswerDto extends PartialType(CreateQuizAnswerDto) {}

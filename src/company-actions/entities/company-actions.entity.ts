@@ -13,7 +13,7 @@ export class CompanyAction extends Base {
     description: 'owner verdict',
   })
   @Column({ nullable: false })
-  ownerCompanyVerdict: boolean;
+  ownerVerdict: boolean;
 
   @ApiProperty({
     required: true,
@@ -42,4 +42,12 @@ export class CompanyAction extends Base {
   })
   @Column({ nullable: true, default: Role.MEMBER })
   role?: Role;
+
+  @ApiProperty({
+    required: true,
+    nullable: false,
+    description: 'member rating',
+  })
+  @Column({ nullable: false, default: 0, type: 'float' })
+  rating: number;
 }

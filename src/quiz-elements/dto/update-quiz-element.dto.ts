@@ -1,19 +1,4 @@
-import {
-  IsArray,
-  IsDefined,
-  IsNotEmpty,
-  IsString,
-  Length,
-} from 'class-validator';
-import { QuizAnswer } from 'src/quiz-answers/entities/quiz-answer.entity';
+import { PartialType } from '@nestjs/swagger';
+import { CreateQuizElementDto } from './create-quiz-element.dto';
 
-export class UpdateQuizElementDto {
-  @IsDefined()
-  @IsNotEmpty()
-  @IsString()
-  question?: string;
-
-  @IsArray()
-  @Length(2)
-  quizAnswers: QuizAnswer[];
-}
+export class UpdateQuizElementDto extends PartialType(CreateQuizElementDto) {}

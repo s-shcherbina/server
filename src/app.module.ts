@@ -11,7 +11,7 @@ import { CompanyActionsModule } from './company-actions/company-actions.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { QuizElementsModule } from './quiz-elements/quiz-elements.module';
 import { QuizAnswersModule } from './quiz-answers/quiz-answers.module';
-import { QuizModule } from './quiz/quiz.module';
+import { QuizResultsModule } from './quiz-results/quiz-results.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { QuizModule } from './quiz/quiz.module';
     QuizzesModule,
     QuizElementsModule,
     QuizAnswersModule,
-    QuizModule,
+    QuizResultsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

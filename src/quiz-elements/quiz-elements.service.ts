@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateQuizElementDto } from './dto/create-quiz-element.dto';
 import { UpdateQuizElementDto } from './dto/update-quiz-element.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,21 +13,29 @@ export class QuizElementsService {
     private readonly quizElementRepository: Repository<QuizElement>,
     private readonly quizzesService: QuizzesService,
   ) {}
+
   public async findQuizElementById(id: string) {
-    return this.quizElementRepository.findOneBy({ id });
+    return this.quizElementRepository
+      .createQueryBuilder('element')
+      .where({ id })
+      .leftJoinAndSelect('quiz.element', 'quiz')
+      .getOne();
   }
 
-  public async checkAccess(email: string, quizId: string) {
-    const quiz = await this.quizzesService.findQuizById(quizId);
-    return this.quizzesService.checkAccess(email, quiz.company.id);
+  public async checkAccess(id: string, email: string) {
+    const element = await this.findQuizElementById(id);
+    return this.quizzesService.checkAccess(element.quiz.id, email);
   }
 
   public async createQuizElement(
-    quizId: string,
     createQuizElementDto: CreateQuizElementDto,
     email: string,
   ) {
-    this.checkAccess(email, quizId);
+    const checkedAccess = await this.quizzesService.checkAccess(
+      createQuizElementDto.quiz.id,
+      email,
+    );
+    if (checkedAccess) throw new ForbiddenException('forbiden resours');
 
     return this.quizElementRepository.save({
       ...createQuizElementDto,
@@ -39,7 +47,9 @@ export class QuizElementsService {
     updateQuizElementDto: UpdateQuizElementDto,
     email: string,
   ) {
-    this.checkAccess(email, id);
+    const checkedAccess = await this.checkAccess(id, email);
+
+    if (checkedAccess) throw new ForbiddenException('forbiden resours');
 
     return this.quizElementRepository.update(
       { id },
@@ -48,18 +58,24 @@ export class QuizElementsService {
   }
 
   public async removeQuizElement(id: string, email: string) {
-    this.checkAccess(email, id);
+    const checkedAccess = await this.checkAccess(id, email);
+
+    if (checkedAccess) throw new ForbiddenException('forbiden resours');
 
     return this.quizElementRepository.delete({ id });
   }
 
-  public async findAllQuizElements(quizId: string) {
+  public async findQuizElements(quizId: string) {
     const quiz = await this.quizzesService.findQuizById(quizId);
 
-    return this.quizElementRepository.find({ where: { quiz } });
+    return this.quizElementRepository
+      .createQueryBuilder('elements')
+      .where({ quiz })
+      .leftJoinAndSelect('elements.quiz', 'quiz')
+      .getMany();
   }
 
   public async findQuizElement(id: string) {
-    return this.quizElementRepository.findOneBy({ id });
+    return this.findQuizElementById(id);
   }
 }

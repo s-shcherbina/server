@@ -6,13 +6,13 @@ import {
   Patch,
   Param,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { CompanyActionsService } from './company-actions.service';
 import { CreateCompanyActionDto } from './dto/create-company-action.dto';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { CreateUserActionDto } from './dto/create-user-action.dto';
 import { UpdateActionDto } from './dto/update-action.dto';
 import {
   ApiBody,
@@ -22,6 +22,8 @@ import {
   PartialType,
 } from '@nestjs/swagger';
 import { CompanyAction } from './entities/company-actions.entity';
+import { Company } from 'src/companies/entities/company.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @ApiTags('actions')
 @UseGuards(AuthGuard(['auth0', 'jwt']))
@@ -29,47 +31,49 @@ import { CompanyAction } from './entities/company-actions.entity';
 export class CompanyActionsController {
   constructor(private readonly companyActionsService: CompanyActionsService) {}
 
-  @ApiOperation({ description: 'creating invitation' })
-  @ApiBody({
-    schema: {
-      example: {
-        ownerCompanyVerdict: true,
-      },
-    },
-  })
-  @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Post('company')
-  async createCompanyAction(
-    @Body() createCompanyActionDto: CreateCompanyActionDto,
-    @CurrentUser('email') email: string,
-  ) {
-    return this.companyActionsService.createCompanyAction(
-      createCompanyActionDto,
-      email,
-    );
-  }
-
-  @ApiOperation({ description: 'creating invitation' })
+  @ApiOperation({ description: 'creating a company action' })
   @ApiBody({
     schema: {
       example: {
         userVerdict: true,
+        ownerCompanyVerdict: false,
+        company: { type: Company },
+        user: { type: User },
       },
     },
   })
   @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Post('user')
-  async createUserAction(
-    @Body() createUserActionDto: CreateUserActionDto,
-    @CurrentUser('email') email: string,
-  ) {
-    return this.companyActionsService.createUserAction(
-      createUserActionDto,
-      email,
-    );
+  @Post()
+  async createAction(@Body() createCompanyActionDto: CreateCompanyActionDto) {
+    return this.companyActionsService.createAction(createCompanyActionDto);
   }
 
-  @ApiOperation({ description: 'updating action' })
+  @ApiOperation({ description: 'getting all actions' })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get()
+  async findAllActions() {
+    return this.companyActionsService.findAllActions();
+  }
+
+  @ApiOperation({ description: 'deleting owner company action' })
+  @Delete('company/:id')
+  async deleteCompanyAction(
+    @Param('id') id: string,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.deleteCompanyAction(id, email);
+  }
+
+  @ApiOperation({ description: 'deleting user action' })
+  @Delete('user/:id')
+  async userAction(
+    @Param('id') id: string,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.deleteUserAction(id, email);
+  }
+
+  @ApiOperation({ description: 'updating owner company action' })
   @ApiBody({
     schema: {
       example: {
@@ -79,48 +83,84 @@ export class CompanyActionsController {
     },
   })
   @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Patch(':id')
-  async updateAction(
+  @Patch('company/:id')
+  async updateCompanyAction(
     @Param('id') id: string,
     @Body() updateActionDto: UpdateActionDto,
     @CurrentUser('email') email: string,
   ) {
-    return this.companyActionsService.updateAction(id, updateActionDto, email);
+    return this.companyActionsService.updateCompanyAction(
+      id,
+      updateActionDto,
+      email,
+    );
   }
 
-  @ApiOperation({ description: 'getting invitations' })
+  @ApiOperation({ description: 'updating user action' })
+  @ApiBody({
+    schema: {
+      example: {
+        userVerdict: true,
+        ownerCompanyVerdict: false,
+      },
+    },
+  })
   @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Get('user/invitations')
+  @Patch('user/:id')
+  async updateUserAction(
+    @Param('id') id: string,
+    @Body() updateActionDto: UpdateActionDto,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.updateUserAction(
+      id,
+      updateActionDto,
+      email,
+    );
+  }
+
+  @ApiOperation({ description: 'getting invitations from company' })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get('/users/invitations')
   async findInvitations(@CurrentUser('email') email: string) {
     return this.companyActionsService.findInvitations(email);
   }
 
-  @ApiOperation({ description: 'getting applicants' })
-  @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Get('user/applicants')
-  async findApplicants(@CurrentUser('email') email: string) {
-    return this.companyActionsService.findApplicants(email);
+  @ApiOperation({ description: 'getting requests to join company' })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get('/users/requests')
+  async findRequests(@CurrentUser('email') email: string) {
+    return this.companyActionsService.findRequests(email);
   }
 
-  @ApiOperation({ description: 'getting invitors' })
-  @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Get('company/invitors')
-  async findInvitors(@CurrentUser('email') email: string) {
-    return this.companyActionsService.findInvitors(email);
+  @ApiOperation({ description: 'getting invited users' })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get('invited/:companyId')
+  async findInvitedUsers(
+    @Param('companyId') companyId: string,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.findInvitedUsers(email, companyId);
   }
 
-  @ApiOperation({ description: 'getting applications' })
-  @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Get('company/applications')
-  async findApplcations(@CurrentUser('email') email: string) {
-    return this.companyActionsService.findApplcations(email);
+  @ApiOperation({ description: 'getting candidates to join company' })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get('candidates/:companyId')
+  async findCandidates(
+    @Param('companyId') companyId: string,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.findCandidates(email, companyId);
   }
 
-  @ApiOperation({ description: 'getting members' })
-  @ApiOkResponse({ type: PartialType(CompanyAction) })
-  @Get('company/members')
-  async findMembers(@CurrentUser('email') email: string) {
-    return this.companyActionsService.findMembers(email);
+  @ApiOperation({ description: 'getting company members' })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get('members/:companyId')
+  async findMembers(
+    @Param('companyId') companyId: string,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.findMembers(email, companyId);
   }
 
   @ApiOperation({ description: 'updating role' })
@@ -133,11 +173,23 @@ export class CompanyActionsController {
   })
   @ApiOkResponse({ type: PartialType(CompanyAction) })
   @Patch('company/role/:id')
-  updateRole(
+  async updateRole(
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
     @CurrentUser('email') email: string,
   ) {
     return this.companyActionsService.updateRole(id, updateRoleDto, email);
+  }
+
+  @ApiOperation({
+    description: 'getting one action by companyId and user email',
+  })
+  @ApiOkResponse({ type: [PartialType(CompanyAction)] })
+  @Get('/company_user/:companyId')
+  async findOneAction(
+    @Param('companyId') companyId: string,
+    @CurrentUser('email') email: string,
+  ) {
+    return this.companyActionsService.findOneAction(companyId, email);
   }
 }
