@@ -10,7 +10,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.enableCors({
-    origin: [configService.getOrThrow('CLIENT_URL'), '*'],
+    origin: [
+      'https://meduzzen-client-476208119955.europe-west10.run.app',
+      configService.getOrThrow('CLIENT_URL'),
+      '*',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
